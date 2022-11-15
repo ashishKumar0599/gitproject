@@ -80,19 +80,49 @@
 #                 - main
 
 
-version: 2.1
+# version: 2.1
+# jobs:
+#   build:
+#     working_directory: ~/repo
+#     docker:
+#       - image: cimg/node:16.17.1
+#     steps:
+#       - checkout
+#       - run:
+#           name: Update NPM
+#           command: "sudo npm install -g npm"
+#       - run:
+#           name: Install Dependencies
+#           command: npm install
+#       - run: npm install --save-dev firebase
+#       - run: npm install --save-dev firebase-tools@11.9.0    
+#       - save_cache:
+#           key: dependency-cache-{{ checksum "package-lock.json" }}
+#           paths:
+#             - ./node_modules
+#       - run:
+#           name: Build application for production
+#           command: npm run build 
+#       - run:
+#           name: Deploy app to Firebase
+#           command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_TOKEN  
+# workflows:
+#   build-and-deploy:
+#     jobs:
+#       - build     
+
+
+
+version: 2.0
 jobs:
   build:
-    working_directory: ~/repo
     docker:
-      - image: cimg/node:16.17.1
+      - image: node:14.9.0-alpine
     steps:
       - checkout
       - run:
           name: Update NPM
           command: "sudo npm install -g npm"
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
           name: Install Dependencies
           command: npm install
@@ -109,6 +139,12 @@ jobs:
           name: Deploy app to Firebase
           command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_TOKEN  
 workflows:
+  version: 2
   build-and-deploy:
     jobs:
-      - build            
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+              
