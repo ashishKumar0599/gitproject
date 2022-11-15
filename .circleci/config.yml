@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/repo
     docker:
-      - image: cimg/node:14.19.2
+      - image: cimg/node:16.17.0
     environment:
         CI: "false"
     steps:
@@ -41,7 +41,7 @@ jobs:
           at: .
       - run:
           name: Deploy 
-          command: ./node_modules/.bin/firebase deploy --only hosting --token=1//0gVWVT478X20pCgYIARAAGBASNwF-L9Irf8AyFP6OLKZN9KNrIPTpBiwWKdFq1SGCaBBsUNnSYTH1KgWnlSv2plWTPCksrRTwZic
+          command: ./node_modules/.bin/firebase deploy  --token=1//0gVWVT478X20pCgYIARAAGBASNwF-L9Irf8AyFP6OLKZN9KNrIPTpBiwWKdFq1SGCaBBsUNnSYTH1KgWnlSv2plWTPCksrRTwZic --only hosting
           
 workflows:
   build_and_deploy:
