@@ -1,11 +1,11 @@
 version: 2.1
 jobs:
   build:
-    working_directory: ~/repo
+    # working_directory: ~/repo
     docker:
-      - image: cimg/node:16.17.0
-    environment:
-        CI: "false"
+      - image: cimg/node:dubnium
+    # environment:
+    #     CI: "false"
     steps:
       - checkout
       - restore_cache:
@@ -17,6 +17,9 @@ jobs:
           command: npm install --f
       - run:
           name: Install Firebase Dev
+          command: npm install --save-dev firebase
+      - run:
+          name: Install Firebase-tools Dev
           command: npm install --save-dev firebase-tools@11.9.0
       - save_cache:
           key: v1-dependencies-{{ checksum "package-lock.json" }}
@@ -28,33 +31,40 @@ jobs:
             if [ $CIRCLE_BRANCH = 'main' ]; then
               npm run build
             fi
+      - run:
+          name: Deploy
+          command: |
+            if [ "$CIRCLE_BRANCH" = "main" ]; then
+              yarn run firebase use gitproj-e8d6b
+              yarn run firebase deploy --token=$FIREBASE_TOKEN
+            fi      
       - persist_to_workspace:
           root: .
           paths:
             - .
-  deploy:
-    working_directory: ~/repo
-    docker:
-      - image: innovatorjapan/awscli:latest
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Deploy 
-          command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
+  # deploy:
+  #   # working_directory: ~/repo
+  #   docker:
+  #     - image: innovatorjapan/awscli:latest
+  #   steps:
+  #     - attach_workspace:
+  #         at: .
+  #     - run:
+  #         name: Deploy 
+  #         command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_DEPLOY_TOKEN --only hosting
           
-workflows:
-  build_and_deploy:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - main
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - main
+# workflows:
+#   build_and_deploy:
+#     jobs:
+#       - build:
+#           filters:
+#             branches:
+#               only:
+#                 - main
+#       - deploy:
+#           requires:
+#             - build
+#           filters:
+#             branches:
+#               only:
+#                 - main
