@@ -102,14 +102,13 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+      - run: firebase login
       - run:
           name: Build application for production
           command: npm run build 
       - run:
           name: Deploy app to Firebase
-          command:
-          firebase login
-          ./node_modules/.bin/firebase deploy --token=$FIREBASE_TOKEN  
+          command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_TOKEN  
 workflows:
   build-and-deploy:
     jobs:
