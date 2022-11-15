@@ -1,83 +1,68 @@
-# version: 2.1
-# jobs:
-#   build:
-#     working_directory: ~/repo
-#     docker:
-#       - image: cimg/node:16.17.1
-#     environment:
-#         CI: "false"
-#     steps:
-#       - checkout
-#       - restore_cache:
-#           keys:
-#           - v1-dependencies-{{ checksum "package-lock.json" }}
-#           - v1-dependencies-
-#       - run:
-#           name: Install dependencies
-#           command: npm install --f
-#       - run:
-#             name: Install Firebase Dev
-#             command: npm install --save-dev firebase
-#       - run:
-#             name: Install Firebase-tools Dev
-#             command: npm install --save-dev firebase-tools@11.9.0
-#       - save_cache:
-#           key: v1-dependencies-{{ checksum "package-lock.json" }}
-#           paths:
-#             - node_modules
-#       - run:
-#           name: Build
-#           command: |
-#             if [ $CIRCLE_BRANCH = 'main' ]; then
-#               npm run build
-#             fi
-#       - persist_to_workspace:
-#           root: .
-#           paths:
-#             - .
-#   deploy:
-#     working_directory: ~/repo
-#     docker:
-#       - image: cimg/node:16.17.1
-#     steps:
-#       - attach_workspace:
-#           at: .
-#       - run:
-#           name: Install dependencies
-#           command: npm install --f
-#       - run:
-#             name: Install Firebase Dev
-#             command: npm install --save-dev firebase
-#       - run:
-#             name: Install Firebase-tools Dev
-#             command: npm install --save-dev firebase-tools@11.9.0
-#       - save_cache:
-#           key: v1-dependencies-{{ checksum "package-lock.json" }}
-#           paths:
-#             - node_modules
-#       - run:
-#           name: Deploy
-#           command: |
-#             if [ $CIRCLE_BRANCH = 'main' ]; then
-#                ./node_modules/.bin/firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
-#             fi
-# workflows:
-#   build_and_deploy:
-#     jobs:
-#       - build:
-#           filters:
-#             branches:
-#               only:
-#                 - dev
-#                 - main
-#       - deploy:
-#           requires:
-#             - build
-#           filters:
-#             branches:
-#               only:
-#                 - dev
-#                 - main
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: cimg/node:16.17.1
+    environment:
+        CI: "false"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package-lock.json" }}
+          - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: npm install --f
+      - run:
+            name: Install Firebase Dev
+            command: npm install --save-dev firebase
+      - run:
+            name: Install Firebase-tools Dev
+            command: npm install --save-dev firebase-tools@11.9.0
+      - save_cache:
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          paths:
+            - .node_modules
+      - run:
+          name: Build
+          command: 
+            if [ $CIRCLE_BRANCH = 'main' ]; then
+              npm run build
+            fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  deploy:
+    working_directory: ~/repo
+    docker:
+      - image: cimg/node:16.17.1
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Deploy
+          command: 
+            if [ $CIRCLE_BRANCH = 'main' ]; then
+               ./node_modules/.bin/firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
+            fi
+workflows:
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
 
 
 # version: 2.1
@@ -111,40 +96,3 @@
 #     jobs:
 #       - build     
 
-
-
-version: 2.0
-jobs:
-  build:
-    docker:
-      - image: node:14.9.0-alpine
-    steps:
-      - checkout
-      - run:
-          name: Update NPM
-          command: "sudo npm install -g npm"
-      - run:
-          name: Install Dependencies
-          command: npm install
-      - run: npm install --save-dev firebase
-      - run: npm install --save-dev firebase-tools@11.9.0    
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Build application for production
-          command: npm run build 
-      - run:
-          name: Deploy app to Firebase
-          command: ./node_modules/.bin/firebase deploy --token=$FIREBASE_TOKEN  
-workflows:
-  version: 2
-  build-and-deploy:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - main
-              
