@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/repo
     docker:
-      - image: cimg/node:16.17.1
+      - image: cimg/node:14.19.2
     environment:
         CI: "false"
     steps:
@@ -34,8 +34,6 @@ jobs:
             - .
   deploy:
     working_directory: ~/repo
-    docker:
-      - image: innovatorjapan/awscli:latest
     steps:
       - attach_workspace:
           at: .
