@@ -46,7 +46,7 @@ jobs:
           name: Deploy
           command: |
             if [ $CIRCLE_BRANCH = 'main' ]; then
-               ./node_modules/.bin/firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
+               ./.node_modules/.bin/firebase deploy --token=$FIREBASE_DEPLOY_TOKEN
             fi
 workflows:
   build_and_deploy:
