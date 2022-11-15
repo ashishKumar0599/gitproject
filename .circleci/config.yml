@@ -34,6 +34,8 @@ jobs:
             - .
   deploy:
     working_directory: ~/repo
+    docker:
+      - image: innovatorjapan/awscli:latest
     steps:
       - attach_workspace:
           at: .
