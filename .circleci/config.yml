@@ -40,9 +40,9 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Deploy
-          command: ./node_modules/.bin/firebase deploy --token=1//0gA3bciBOAmWaCgYIARAAGBASNwF-L9Ir3AlNRD3hxz6GEn_03Q-rTO_6kEyiI_hYL6w_F2tEbIf5DBNX0jC_jjc1aEsgBdMSUkY
-            
+          name: Deploy 
+          command: ./node_modules/.bin/firebase deploy --token=1//0gVWVT478X20pCgYIARAAGBASNwF-L9Irf8AyFP6OLKZN9KNrIPTpBiwWKdFq1SGCaBBsUNnSYTH1KgWnlSv2plWTPCksrRTwZic
+          
 workflows:
   build_and_deploy:
     jobs:
