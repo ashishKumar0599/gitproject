@@ -1,0 +1,69 @@
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: cimg/node:16.17.1
+    environment:
+        CI: "false"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package-lock.json" }}
+          - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: npm install --f
+      - save_cache:
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+      - run:
+          name: Build
+          command: |
+            if [ $CIRCLE_BRANCH = 'dev' ]; then
+              npm run build
+            fi
+
+            if [ $CIRCLE_BRANCH = 'main' ]; then
+              npm run build:production
+            fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  deploy:
+    working_directory: ~/repo
+    docker:
+      - image: innovatorjapan/awscli:latest
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Deploy
+          command: |
+            if [ $CIRCLE_BRANCH = 'dev' ]; then
+              aws s3 sync build s3://stg.gromo.in --delete --exact-timestamps;
+            fi
+
+            if [ $CIRCLE_BRANCH = 'main' ]; then
+              aws s3 sync build s3://www.gromo.in --delete --exact-timestamps;
+            fi
+workflows:
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - dev
+                - main
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - dev
+                - main
